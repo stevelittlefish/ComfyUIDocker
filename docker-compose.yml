@@ -4,9 +4,7 @@ services:
     ports:
       - "8188:8188"
     volumes:
-      - /srv/comfyui/models/checkpoints:/srv/app/models/checkpoints
-      - /srv/comfyui/models/clip:/srv/app/models/clip
-      - /srv/comfyui/models/vae:/srv/app/models/vae
+      - /srv/comfyui/models:/srv/app/models
       - /srv/comfyui/input:/srv/app/input
       - /srv/comfyui/output:/srv/app/output
     deploy:
