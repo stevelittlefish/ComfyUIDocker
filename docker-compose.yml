@@ -4,9 +4,15 @@ services:
     ports:
       - "8188:8188"
     volumes:
-      - /srv/comfyui/models:/srv/app/models
-      - /srv/comfyui/input:/srv/app/input
-      - /srv/comfyui/output:/srv/app/output
+      - /mnt/models/image_models/vae:/srv/app/models/vae
+      - /mnt/models/image_models/checkpoints:/srv/app/models/checkpoints
+      - /mnt/models/image_models/diffusion_models:/srv/app/models/diffusion_models
+      - /mnt/models/image_models/text_encoders:/srv/app/models/clip
+      - /mnt/models/image_models/unet:/srv/app/models/unet
+      - /mnt/data/comfyui/input:/srv/app/input
+      - /mnt/data/comfyui/output:/srv/app/output
+      - /srv/comfyui/custom_nodes:/srv/app/custom_nodes
+    restart: unless-stopped
     deploy:
       resources:
         reservations:

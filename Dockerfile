@@ -24,5 +24,6 @@ WORKDIR /srv/app
 COPY . .
 
 RUN pip install -r requirements.txt
+RUN pip install -r requirements-extra.txt
 
 CMD python main.py --listen 0.0.0.0
