@@ -9,6 +9,7 @@ services:
       - /mnt/models/image_models/diffusion_models:/srv/app/models/diffusion_models
       - /mnt/models/image_models/text_encoders:/srv/app/models/clip
       - /mnt/models/image_models/unet:/srv/app/models/unet
+      - /mnt/models/image_models/loras:/srv/app/models/loras
       - /mnt/data/comfyui/input:/srv/app/input
       - /mnt/data/comfyui/output:/srv/app/output
       - /srv/comfyui/custom_nodes:/srv/app/custom_nodes
