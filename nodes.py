@@ -770,6 +770,7 @@ class VAELoader:
             vae_path = folder_paths.get_full_path_or_raise("vae", vae_name)
             sd = comfy.utils.load_torch_file(vae_path)
         vae = comfy.sd.VAE(sd=sd)
+        vae.throw_exception_if_invalid()
         return (vae,)
 
 class ControlNetLoader:
@@ -2263,6 +2264,10 @@ def init_builtin_extra_nodes():
         "nodes_video.py",
         "nodes_lumina2.py",
         "nodes_wan.py",
+        "nodes_lotus.py",
+        "nodes_hunyuan3d.py",
+        "nodes_primitive.py",
+        "nodes_cfg.py",
     ]
 
     import_failed = []

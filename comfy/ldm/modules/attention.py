@@ -471,7 +471,7 @@ def attention_pytorch(q, k, v, heads, mask=None, attn_precision=None, skip_resha
 def attention_sage(q, k, v, heads, mask=None, attn_precision=None, skip_reshape=False, skip_output_reshape=False):
     if skip_reshape:
         b, _, _, dim_head = q.shape
-        tensor_layout="HND"
+        tensor_layout = "HND"
     else:
         b, _, dim_head = q.shape
         dim_head //= heads
@@ -479,7 +479,7 @@ def attention_sage(q, k, v, heads, mask=None, attn_precision=None, skip_reshape=
             lambda t: t.view(b, -1, heads, dim_head),
             (q, k, v),
         )
-        tensor_layout="NHD"
+        tensor_layout = "NHD"
 
     if mask is not None:
         # add a batch dimension if there isn't already one
@@ -489,7 +489,17 @@ def attention_sage(q, k, v, heads, mask=None, attn_precision=None, skip_reshape=
         if mask.ndim == 3:
             mask = mask.unsqueeze(1)
 
-    out = sageattn(q, k, v, attn_mask=mask, is_causal=False, tensor_layout=tensor_layout)
+    try:
+        out = sageattn(q, k, v, attn_mask=mask, is_causal=False, tensor_layout=tensor_layout)
+    except Exception as e:
+        logging.error("Error running sage attention: {}, using pytorch attention instead.".format(e))
+        if tensor_layout == "NHD":
+            q, k, v = map(
+                lambda t: t.transpose(1, 2),
+                (q, k, v),
+            )
+        return attention_pytorch(q, k, v, heads, mask=mask, skip_reshape=True, skip_output_reshape=skip_output_reshape)
+
     if tensor_layout == "HND":
         if not skip_output_reshape:
             out = (
@@ -503,16 +513,23 @@ def attention_sage(q, k, v, heads, mask=None, attn_precision=None, skip_reshape=
     return out
 
 
-@torch.library.custom_op("flash_attention::flash_attn", mutates_args=())
-def flash_attn_wrapper(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor,
-                 dropout_p: float = 0.0, causal: bool = False) -> torch.Tensor:
-    return flash_attn_func(q, k, v, dropout_p=dropout_p, causal=causal)
+try:
+    @torch.library.custom_op("flash_attention::flash_attn", mutates_args=())
+    def flash_attn_wrapper(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor,
+                    dropout_p: float = 0.0, causal: bool = False) -> torch.Tensor:
+        return flash_attn_func(q, k, v, dropout_p=dropout_p, causal=causal)
 
 
-@flash_attn_wrapper.register_fake
-def flash_attn_fake(q, k, v, dropout_p=0.0, causal=False):
-    # Output shape is the same as q
-    return q.new_empty(q.shape)
+    @flash_attn_wrapper.register_fake
+    def flash_attn_fake(q, k, v, dropout_p=0.0, causal=False):
+        # Output shape is the same as q
+        return q.new_empty(q.shape)
+except AttributeError as error:
+    FLASH_ATTN_ERROR = error
+
+    def flash_attn_wrapper(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor,
+                    dropout_p: float = 0.0, causal: bool = False) -> torch.Tensor:
+        assert False, f"Could not define flash_attn_wrapper: {FLASH_ATTN_ERROR}"
 
 
 def attention_flash(q, k, v, heads, mask=None, attn_precision=None, skip_reshape=False, skip_output_reshape=False):
