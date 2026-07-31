@@ -16,6 +16,8 @@ nodes:
 
   - repo: https://github.com/ltdrdata/ComfyUI-Manager.git
     commit: 2b40deba7d04afeee29ee70c88f6c336e43dc9ca
+    patches:
+      - patches/manager-manifest-only.patch
 
   - repo: https://github.com/Gourieff/ComfyUI-ReActor
     commit: d2318ad140582c6d0b68c51df342319b502006ed

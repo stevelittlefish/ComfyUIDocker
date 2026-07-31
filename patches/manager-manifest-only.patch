@@ -1,0 +1,35 @@
+diff --git a/glob/manager_server.py b/glob/manager_server.py
+index 11a7a2f3..1839c4bc 100644
+--- a/glob/manager_server.py
++++ b/glob/manager_server.py
+@@ -321,6 +321,30 @@ import zipfile
+ import urllib.request
+ 
+ 
++MANIFEST_ONLY_MESSAGE = "Custom nodes are managed by custom-nodes.yaml. Update the manifest and rebuild the container."
++MANIFEST_ONLY_ROUTES = frozenset({
++    "/customnode/install/git_url",
++    "/customnode/install/pip",
++    "/manager/queue/disable",
++    "/manager/queue/fix",
++    "/manager/queue/install",
++    "/manager/queue/reinstall",
++    "/manager/queue/uninstall",
++    "/manager/queue/update",
++    "/manager/queue/update_all",
++})
++
++
++@web.middleware
++async def manifest_only_middleware(request, handler):
++    if request.method == "POST" and request.path in MANIFEST_ONLY_ROUTES:
++        return web.Response(status=409, text=MANIFEST_ONLY_MESSAGE)
++    return await handler(request)
++
++
++PromptServer.instance.app.middlewares.append(manifest_only_middleware)
++
++
+ def security_403_response(flag_token=None):
+     """Return appropriate 403 response based on ComfyUI version.
+ 
