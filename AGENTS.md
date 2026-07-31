@@ -1,3 +1,20 @@
+## Docker Fork and Custom Nodes
+
+This fork packages ComfyUI and all custom nodes into a Docker image. Before
+changing Docker behavior, custom nodes, custom-node dependencies, or patches,
+read `docs/custom-node-manifest.md` completely.
+
+- `custom-nodes.yaml` is the authoritative custom-node list. Use full
+  40-character Git commits, never branches or tags.
+- Add node-specific dependency exceptions with the manifest's `pip` field and
+  source modifications with its `patches` field.
+- Do not restore the `custom_nodes` bind mount or `requirements-extra.txt`.
+- ComfyUI Manager is for browsing only; its mutation endpoints are deliberately
+  disabled by `patches/manager-manifest-only.patch`.
+- For a request such as "add this node", update the manifest, run the focused
+  installer tests and Docker Compose validation, then commit/push only when the
+  user requests it or the active workflow already includes that step.
+
 ## Engineering Style
 
 - Keep changes small and direct. Most fixes should touch the narrowest code path

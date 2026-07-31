@@ -35,6 +35,9 @@
 <br>
 </div>
 
+> This Docker-focused fork installs pinned custom nodes from a manifest. See
+> [Docker and custom-node operations](docs/custom-node-manifest.md).
+
 ComfyUI is the AI creation engine for visual professionals who demand control over every model, every parameter, and every output. Its powerful and modular node graph interface empowers creatives to generate images, videos, 3D models, audio, and more...
 - ComfyUI natively supports the latest open-source state of the art models.
 - API nodes provide access to the best closed source models such as Nano Banana, Seedance, Hunyuan3D, etc.
