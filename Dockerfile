@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.2.2-runtime-ubuntu22.04
+FROM nvidia/cuda:13.0.3-runtime-ubuntu22.04
 
 RUN apt update
 
@@ -19,7 +19,7 @@ RUN pyenv global ${PYTHON_VERSION}
 RUN --mount=type=cache,id=comfyui-pip,target=/root/.cache/pip,sharing=locked \
     pip install --upgrade pip
 RUN --mount=type=cache,id=comfyui-pip,target=/root/.cache/pip,sharing=locked \
-    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu130
 
 WORKDIR /srv/app
 
