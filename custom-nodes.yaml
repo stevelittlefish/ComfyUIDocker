@@ -15,7 +15,7 @@ nodes:
     commit: a0f451a5113cf9becb0847b92884cb10cbdec0ef
 
   - repo: https://github.com/ltdrdata/ComfyUI-Manager.git
-    commit: ae66bd0e31da253acd2468e94ea018ea6c201f77
+    commit: 2b40deba7d04afeee29ee70c88f6c336e43dc9ca
 
   - repo: https://github.com/Gourieff/ComfyUI-ReActor
     commit: d2318ad140582c6d0b68c51df342319b502006ed
