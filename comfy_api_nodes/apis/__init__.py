@@ -2,7 +2,7 @@
 #   filename:  filtered-openapi.yaml
 #   timestamp: 2025-07-30T08:54:00+00:00
 
-from __future__ import annotations
+# pylint: disable
 
 from datetime import date, datetime
 from enum import Enum
@@ -951,7 +951,11 @@ class MagicPrompt2(str, Enum):
 
 
 class StyleType1(str, Enum):
+    AUTO = 'AUTO'
     GENERAL = 'GENERAL'
+    REALISTIC = 'REALISTIC'
+    DESIGN = 'DESIGN'
+    FICTION = 'FICTION'
 
 
 class ImagenImageGenerationInstance(BaseModel):
@@ -1192,12 +1196,6 @@ class KlingImageGenImageReferenceType(str, Enum):
     face = 'face'
 
 
-class KlingImageGenModelName(str, Enum):
-    kling_v1 = 'kling-v1'
-    kling_v1_5 = 'kling-v1-5'
-    kling_v2 = 'kling-v2'
-
-
 class KlingImageGenerationsRequest(BaseModel):
     aspect_ratio: Optional[KlingImageGenAspectRatio] = '16:9'
     callback_url: Optional[AnyUrl] = Field(
@@ -1213,7 +1211,7 @@ class KlingImageGenerationsRequest(BaseModel):
         0.5, description='Reference intensity for user-uploaded images', ge=0.0, le=1.0
     )
     image_reference: Optional[KlingImageGenImageReferenceType] = None
-    model_name: Optional[KlingImageGenModelName] = 'kling-v1'
+    model_name: str = Field(...)
     n: Optional[int] = Field(1, description='Number of generated images', ge=1, le=9)
     negative_prompt: Optional[str] = Field(
         None, description='Negative text prompt', max_length=200
@@ -1312,12 +1310,6 @@ class KlingTaskStatus(str, Enum):
     failed = 'failed'
 
 
-class KlingTextToVideoModelName(str, Enum):
-    kling_v1 = 'kling-v1'
-    kling_v1_6 = 'kling-v1-6'
-    kling_v2_1_master = 'kling-v2-1-master'
-
-
 class KlingVideoGenAspectRatio(str, Enum):
     field_16_9 = '16:9'
     field_9_16 = '9:16'
@@ -1350,6 +1342,7 @@ class KlingVideoGenModelName(str, Enum):
     kling_v2_master = 'kling-v2-master'
     kling_v2_1 = 'kling-v2-1'
     kling_v2_1_master = 'kling-v2-1-master'
+    kling_v2_5_turbo = 'kling-v2-5-turbo'
 
 
 class KlingVideoResult(BaseModel):
@@ -2676,7 +2669,7 @@ class ReleaseNote(BaseModel):
 
 
 class RenderingSpeed(str, Enum):
-    BALANCED = 'BALANCED'
+    DEFAULT = 'DEFAULT'
     TURBO = 'TURBO'
     QUALITY = 'QUALITY'
 
@@ -4918,6 +4911,14 @@ class IdeogramV3EditRequest(BaseModel):
         None,
         description='A set of images to use as style references (maximum total size 10MB across all style references). The images should be in JPEG, PNG or WebP format.',
     )
+    character_reference_images: Optional[List[str]] = Field(
+        None,
+        description='Generations with character reference are subject to the character reference pricing. A set of images to use as character references (maximum total size 10MB across all character references), currently only supports 1 character reference image. The images should be in JPEG, PNG or WebP format.'
+    )
+    character_reference_images_mask: Optional[List[str]] = Field(
+        None,
+        description='Optional masks for character reference images. When provided, must match the number of character_reference_images. Each mask should be a grayscale image of the same dimensions as the corresponding character reference image. The images should be in JPEG, PNG or WebP format.'
+    )
 
 
 class IdeogramV3Request(BaseModel):
@@ -4950,6 +4951,14 @@ class IdeogramV3Request(BaseModel):
     )
     style_type: Optional[StyleType1] = Field(
         None, description='The type of style to apply'
+    )
+    character_reference_images: Optional[List[str]] = Field(
+        None,
+        description='Generations with character reference are subject to the character reference pricing. A set of images to use as character references (maximum total size 10MB across all character references), currently only supports 1 character reference image. The images should be in JPEG, PNG or WebP format.'
+    )
+    character_reference_images_mask: Optional[List[str]] = Field(
+        None,
+        description='Optional masks for character reference images. When provided, must match the number of character_reference_images. Each mask should be a grayscale image of the same dimensions as the corresponding character reference image. The images should be in JPEG, PNG or WebP format.'
     )
 
 
@@ -5163,7 +5172,7 @@ class KlingText2VideoRequest(BaseModel):
     duration: Optional[KlingVideoGenDuration] = '5'
     external_task_id: Optional[str] = Field(None, description='Customized Task ID')
     mode: Optional[KlingVideoGenMode] = 'std'
-    model_name: Optional[KlingTextToVideoModelName] = 'kling-v1'
+    model_name: Optional[str] = 'kling-v1'
     negative_prompt: Optional[str] = Field(
         None, description='Negative text prompt', max_length=2500
     )

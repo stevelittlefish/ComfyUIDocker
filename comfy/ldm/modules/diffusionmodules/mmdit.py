@@ -211,17 +211,20 @@ class TimestepEmbedder(nn.Module):
     Embeds scalar timesteps into vector representations.
     """
 
-    def __init__(self, hidden_size, frequency_embedding_size=256, dtype=None, device=None, operations=None):
+    def __init__(self, hidden_size, frequency_embedding_size=256, output_size=None, dtype=None, device=None, operations=None, max_period=10000):
         super().__init__()
+        if output_size is None:
+            output_size = hidden_size
         self.mlp = nn.Sequential(
             operations.Linear(frequency_embedding_size, hidden_size, bias=True, dtype=dtype, device=device),
             nn.SiLU(),
-            operations.Linear(hidden_size, hidden_size, bias=True, dtype=dtype, device=device),
+            operations.Linear(hidden_size, output_size, bias=True, dtype=dtype, device=device),
         )
         self.frequency_embedding_size = frequency_embedding_size
+        self.max_period = max_period
 
     def forward(self, t, dtype, **kwargs):
-        t_freq = timestep_embedding(t, self.frequency_embedding_size).to(dtype)
+        t_freq = timestep_embedding(t, self.frequency_embedding_size, max_period=self.max_period).to(dtype)
         t_emb = self.mlp(t_freq)
         return t_emb
 
@@ -606,7 +609,7 @@ def block_mixing(*args, use_checkpoint=True, **kwargs):
         return _block_mixing(*args, **kwargs)
 
 
-def _block_mixing(context, x, context_block, x_block, c):
+def _block_mixing(context, x, context_block, x_block, c, transformer_options={}):
     context_qkv, context_intermediates = context_block.pre_attention(context, c)
 
     if x_block.x_block_self_attn:
@@ -622,6 +625,7 @@ def _block_mixing(context, x, context_block, x_block, c):
     attn = optimized_attention(
         qkv[0], qkv[1], qkv[2],
         heads=x_block.attn.num_heads,
+        transformer_options=transformer_options,
     )
     context_attn, x_attn = (
         attn[:, : context_qkv[0].shape[1]],
@@ -637,6 +641,7 @@ def _block_mixing(context, x, context_block, x_block, c):
         attn2 = optimized_attention(
                 x_qkv2[0], x_qkv2[1], x_qkv2[2],
                 heads=x_block.attn2.num_heads,
+                transformer_options=transformer_options,
             )
         x = x_block.post_attention_x(x_attn, attn2, *x_intermediates)
     else:
@@ -958,10 +963,10 @@ class MMDiT(nn.Module):
             if ("double_block", i) in blocks_replace:
                 def block_wrap(args):
                     out = {}
-                    out["txt"], out["img"] = self.joint_blocks[i](args["txt"], args["img"], c=args["vec"])
+                    out["txt"], out["img"] = self.joint_blocks[i](args["txt"], args["img"], c=args["vec"], transformer_options=args["transformer_options"])
                     return out
 
-                out = blocks_replace[("double_block", i)]({"img": x, "txt": context, "vec": c_mod}, {"original_block": block_wrap})
+                out = blocks_replace[("double_block", i)]({"img": x, "txt": context, "vec": c_mod, "transformer_options": transformer_options}, {"original_block": block_wrap})
                 context = out["txt"]
                 x = out["img"]
             else:
@@ -970,6 +975,7 @@ class MMDiT(nn.Module):
                     x,
                     c=c_mod,
                     use_checkpoint=self.use_checkpoint,
+                    transformer_options=transformer_options,
                 )
             if control is not None:
                 control_o = control.get("output")
