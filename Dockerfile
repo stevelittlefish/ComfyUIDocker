@@ -16,14 +16,23 @@ RUN pyenv install ${PYTHON_VERSION}
 RUN pyenv global ${PYTHON_VERSION}
 
 
-RUN pip install --upgrade pip
-RUN pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu124
+RUN --mount=type=cache,id=comfyui-pip,target=/root/.cache/pip,sharing=locked \
+    pip install --upgrade pip
+RUN --mount=type=cache,id=comfyui-pip,target=/root/.cache/pip,sharing=locked \
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 
 WORKDIR /srv/app
 
-COPY . .
+COPY requirements.txt ./
+RUN --mount=type=cache,id=comfyui-pip,target=/root/.cache/pip,sharing=locked \
+    pip install -r requirements.txt
 
-RUN pip install -r requirements.txt
-RUN pip install -r requirements-extra.txt
+COPY custom-nodes.yaml ./
+COPY patches/ ./patches/
+COPY scripts/install_custom_nodes.py /usr/local/bin/install-custom-nodes
+RUN --mount=type=cache,id=comfyui-pip,target=/root/.cache/pip,sharing=locked \
+    python /usr/local/bin/install-custom-nodes --manifest custom-nodes.yaml --destination custom_nodes
+
+COPY . .
 
 CMD python main.py --listen 0.0.0.0
