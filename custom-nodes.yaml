@@ -30,4 +30,4 @@ nodes:
     commit: a5547db9e1d07d3318bb21e9e9c474f4c1e9c8df
 
   - repo: https://github.com/stevelittlefish/ComfyUI-DiT360EXPlusAlpha
-    commit: 72c948ce55bb07e92e102d9e16d23b654a401c01
+    commit: fb2336a0e6fefeb8a4d538ba3672ec0c7eb03975
