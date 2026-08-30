@@ -30,7 +30,7 @@ nodes:
     commit: a5547db9e1d07d3318bb21e9e9c474f4c1e9c8df
 
   - repo: https://github.com/stevelittlefish/ComfyUI-DiT360EXPlusAlpha
-    commit: c568c0aa27b50b99e9f9fcf4edb31c16c32ab8ba
+    commit: a5525755acae80c8f33204cde0fc97785cc3d9d1
 
   - repo: https://github.com/stevelittlefish/ComfyUI-seamless-tiling-fixed
     commit: 82865e4a76e8e4bbee0982ce0764b2b2cd259075
