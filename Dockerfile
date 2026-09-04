@@ -27,6 +27,7 @@ COPY requirements.txt ./
 RUN --mount=type=cache,id=comfyui-pip,target=/root/.cache/pip,sharing=locked \
     pip install -r requirements.txt
 
+# fbxsdkpy is required by the nVidia Kimodo custom nodes and workflows
 RUN --mount=type=cache,id=comfyui-pip,target=/root/.cache/pip,sharing=locked \
     pip install fbxsdkpy \
       --extra-index-url https://gitlab.inria.fr/api/v4/projects/18692/packages/pypi/simple
