@@ -6,7 +6,7 @@ services:
     ports:
       - "8188:8188"
     volumes:
-      - /mnt/models/ComfyUI/models:/srv/app/models
+      - /mnt/comfyui/models:/srv/app/models
       - /mnt/data/comfyui/input:/srv/app/input
       - /mnt/data/comfyui/output:/srv/app/output
     restart: unless-stopped
