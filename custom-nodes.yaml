@@ -34,3 +34,6 @@ nodes:
 
   - repo: https://github.com/stevelittlefish/ComfyUI-seamless-tiling-fixed
     commit: 82865e4a76e8e4bbee0982ce0764b2b2cd259075
+
+  - repo: https://github.com/jtydhr88/ComfyUI-Kimodo
+    commit: 9e758bce7f37eb1c4e5d2886463810c98c02b889
