@@ -27,6 +27,10 @@ COPY requirements.txt ./
 RUN --mount=type=cache,id=comfyui-pip,target=/root/.cache/pip,sharing=locked \
     pip install -r requirements.txt
 
+RUN --mount=type=cache,id=comfyui-pip,target=/root/.cache/pip,sharing=locked \
+    pip install fbxsdkpy \
+      --extra-index-url https://gitlab.inria.fr/api/v4/projects/18692/packages/pypi/simple
+
 COPY custom-nodes.yaml ./
 COPY patches/ ./patches/
 COPY scripts/install_custom_nodes.py /usr/local/bin/install-custom-nodes
