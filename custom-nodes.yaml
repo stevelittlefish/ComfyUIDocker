@@ -37,3 +37,6 @@ nodes:
 
   - repo: https://github.com/stevelittlefish/ComfyUI-Kimodo-Enhanced.git
     commit: f3d2694fec50582bcf39e4eb0b783e828301d282
+
+  - repo: https://github.com/stevelittlefish/ComfyUI-SkinTokens-NoBlender
+    commit: 6538d79e0013b36160043e558d3d65cd9d45f515
