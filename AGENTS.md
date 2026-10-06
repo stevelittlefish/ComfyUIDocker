@@ -203,6 +203,10 @@ read `docs/custom-node-manifest.md` completely.
   handwritten implementations of the same operation. Remove duplicate local
   kernels and adapt inputs to the shared operation's documented layout while
   preserving the model's original math and output contract.
+- Model implementations must use `AttentionTensorContainer` and per-module
+  `self.comfy_attention = ComfyAttention()`, passed to attention as `preferred_attention`.
+- Integrate model block loops with the memory compiler and prefetch helpers in
+  `comfy.model_prefetch`, following existing model patterns.
 - All models should use the optimized attention function selected by ComfyUI.
   Treat optimized backend functions, dispatch helpers, and capability-selected
   callables as opaque. Higher-level code must not inspect function identity,
@@ -314,6 +318,12 @@ read `docs/custom-node-manifest.md` completely.
 - Avoid caches that persist across different executions as much as possible.
   Persistent caches are acceptable only when they use a very minimal amount of
   memory and have a clear ownership and invalidation story.
+- When condition-dependent model work would otherwise repeat on every denoising
+  step and preprocessing it once materially improves performance, expose a
+  model preprocessing method and call it from `BaseModel.extra_conds`, following
+  patterns such as LTXAV and Anima. Pass the result through normal conditioning;
+  do not add model-owned caches, sampler-option caches, or cache-management
+  wrappers for this work.
 - When optimizing, favor small measurable changes: fewer allocations, fewer
   device transfers, less peak memory, better batching, or use of a faster
   existing backend op.
